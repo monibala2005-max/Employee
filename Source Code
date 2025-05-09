@@ -1,0 +1,98 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import plotly.express as px
+from sklearn.preprocessing import StandardScaler
+df = pd.read_csv("C:/Users/merol/Downloads/hr_dashboard_data.csv")  # Adjust filename if different
+df.head()
+df.info()
+df.describe()
+df.isnull().sum()
+df.duplicated().sum()
+# Histogram for Age
+plt.figure(figsize=(6, 4))
+sns.histplot(df['Age'], kde=True, bins=10)
+plt.title("Age Distribution")
+plt.xlabel("Age")
+plt.ylabel("Count")
+plt.show()
+# Histogram for Productivity Rate (%)
+plt.figure(figsize=(6, 4))
+sns.histplot(df['Productivity (%)'], kde=True, bins=10)
+plt.title("Productivity Rate Distribution")
+plt.xlabel("Productivity (%)")
+plt.ylabel("Count")
+plt.show()
+plt.figure(figsize=(6, 4))
+sns.scatterplot(x='Salary', y='Productivity (%)', data=df)
+plt.title('Salary vs Productivity (%)')
+plt.xlabel('Salary')
+plt.ylabel('Productivity (%)')
+plt.tight_layout()
+plt.show()
+plt.figure(figsize=(6, 4))
+sns.scatterplot(data=df, x='Age', y='Productivity (%)', color='green')
+plt.title('Age vs Productivity (%)')
+plt.tight_layout()
+plt.show()
+
+if 'Satisfaction Rate (%)' in df.columns:
+    plt.figure(figsize=(8, 6))
+    sns.kdeplot(df['Satisfaction Rate (%)'], fill=True, color='purple', alpha=0.6)
+    plt.title('Density Plot of Satisfaction Rate (%)')
+    plt.xlabel('Satisfaction Rate (%)')
+    plt.ylabel('Density')
+    plt.tight_layout()
+    plt.show()
+else:
+    print("Column 'Satisfaction Rate (%)' not found in the dataset.")
+
+if 'Department' in df.columns:
+    department_counts = df['Department'].value_counts()
+    plt.figure(figsize=(8, 8))
+    plt.pie(department_counts, labels=department_counts.index, autopct='%1.1f%%', startangle=90, colors=sns.color_palette("Set3", len(department_counts)))
+    plt.title('Employee Distribution by Department')
+    plt.axis('equal')  
+    plt.show()
+
+df_plot = df[['Position', 'Productivity (%)']].dropna()
+sns.boxplot(x='Position', y='Productivity (%)', data=df_plot)
+plt.title('Productivity by Position')
+plt.xticks(rotation=45)
+plt.show()
+
+plt.figure(figsize=(8, 5))
+sns.boxplot(x='Department', y='Satisfaction Rate (%)', hue='Department', data=df, palette='pastel', dodge=False)
+plt.legend([],[], frameon=False)  # Hides the redundant legend
+plt.title('Satisfaction Rate (%) by Department')
+plt.xlabel('Department')
+plt.ylabel('Satisfaction Rate (%)')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# For any groupby calls, pass observed=False or observed=True to avoid the warning.
+print("Highest Productivity Department:", df.groupby('Department', observed=False)['Productivity (%)'].mean().idxmax())
+print("Highest Satisfaction Department:", df.groupby('Department', observed=False)['Satisfaction Rate (%)'].mean().idxmax())
+print("Highest Feedback Department:", df.groupby('Department', observed=False)['Feedback Score'].mean().idxmax())
+
+# Gender-wise Productivity
+print("Gender-wise Average Productivity:")
+print(df.groupby('Gender', observed=False)['Productivity (%)'].mean())
+
+# Productivity by Position
+print("Productivity by Position:")
+print(df.groupby('Position', observed=False)['Productivity (%)'].mean())
+
+# Select numeric columns to scale
+cols_to_scale = ['Age', 'Projects Completed', 'Productivity (%)', 'Satisfaction Rate (%)', 'Feedback Score', 'Salary']
+
+# Initialize the scaler
+scaler = StandardScaler()
+
+# Apply scaling to the selected columns
+df[cols_to_scale] = scaler.fit_transform(df[cols_to_scale])
+
+df
+
